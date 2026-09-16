@@ -34,7 +34,7 @@
 
 ## 使用
 
-[下载 v1.0.0 Windows 工具包](https://github.com/TOOOOOOBY-Q/CodexSwitcher/raw/refs/heads/main/downloads/CodexSwitcher-v1.0.0-windows.zip)
+[下载 v1.0.0 Windows 工具包](https://github.com/TOOOOOOBY-Q/CodexSwitcher/releases/download/v1.0.0/CodexSwitcher-v1.0.0-windows.zip)
 
 下载并解压工具包，保持四个 CMD 文件与 `_internal` 的相对位置。先运行 `Status.cmd`，再双击对应的切换入口。
 
