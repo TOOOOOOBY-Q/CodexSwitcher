@@ -19,3 +19,5 @@ _internal/tests/*results.json
 *.running
 dist/
 *.zip
+
+!downloads/*.zip
