@@ -17,7 +17,8 @@ function Get-EnvironmentName {
     $state=Get-LinkState
     if ($state.Type -eq 'Junction') {
         if ($state.Target -ieq (Get-Target OpenAI)) { return 'OpenAI / ChatGPT' }
-        if ($state.Target -ieq (Get-Target DeepSeek)) { return 'DeepSeek API' }
+        if ($state.Target -ieq (Get-Target ThirdParty)) { return 'Third Party' }
+        if ($state.Target -ieq (Get-Target DeepSeek)) { return 'DeepSeek (Legacy)' }
     }
     return 'Unknown'
 }
@@ -27,17 +28,17 @@ function Assert-Environment([string]$Mode) {
     if (-not $item.PSIsContainer -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "Expected a real environment directory: $target" }
     if (-not (Test-Path -LiteralPath (Join-Path $target 'config.toml') -PathType Leaf)) { throw "Missing config.toml: $target" }
 }
-function Assert-SwitchReady {
+function Assert-SwitchReady([string]$Mode='OpenAI') {
     $state=Get-LinkState
     if ($state.Type -ne 'Junction') { throw '.codex must be a Junction. A real or missing directory is never removed.' }
-    if ($state.Target -ine (Get-Target OpenAI) -and $state.Target -ine (Get-Target DeepSeek)) { throw 'Unknown current Junction target; nothing changed.' }
-    Assert-Environment OpenAI
-    Assert-Environment DeepSeek
+    if ($state.Target -ine (Get-Target OpenAI) -and $state.Target -ine (Get-Target ThirdParty) -and $state.Target -ine (Get-Target DeepSeek)) { throw 'Unknown current Junction target; nothing changed.' }
+    Assert-Environment $Mode
+    if (-not (Test-Path -LiteralPath (Join-Path $state.Target 'config.toml') -PathType Leaf)) { throw 'Current environment config.toml is missing.' }
     return $state
 }
-function Get-KeyState {
+function Get-KeyState([string]$Name='DEEPSEEK_API_KEY') {
     foreach($scope in @('Process','User','Machine')) {
-        if (-not [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable('DEEPSEEK_API_KEY',$scope))) { return 'Present' }
+        if (-not [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($Name,$scope))) { return 'Present' }
     }
     return 'Missing'
 }
@@ -54,7 +55,7 @@ function Remove-TopJunction([string]$ExpectedTarget) {
     if ((Get-LinkState).Type -ne 'Missing') { throw '.codex still exists; stopped.' }
 }
 function Switch-Junction([string]$Mode) {
-    $state=Assert-SwitchReady
+    $state=Assert-SwitchReady $Mode
     $target=Get-Target $Mode
     if ($state.Target -ieq $target) { Confirm-Link $target; return }
     $oldTarget=$state.Target; $created=$false
@@ -82,7 +83,7 @@ function Test-CodexPath([string]$Text) {
     $text=$Text.Replace('/','\')
     $root=[regex]::Escape($script:ProfileRoot)
     $local=[regex]::Escape((Join-Path $env:LOCALAPPDATA 'OpenAI\Codex'))
-    return $text -match ('(?i)(?:'+$root+'\\\.codex(?:_openai|_deepseek)?|'+$local+')(?=\\|[\s"'']|$)')
+    return $text -match ('(?i)(?:'+$root+'\\\.codex(?:_openai|_thirdparty|_deepseek)?|'+$local+')(?=\\|[\s"'']|$)')
 }
 function Get-ProcessKind($Process) {
     $name=[string]$Process.Name; $exe=[string]$Process.ExecutablePath
@@ -92,11 +93,11 @@ function Get-ProcessKind($Process) {
     $owned=(Test-CodexPath $exe) -or ($exe -match ('(?i)^'+[regex]::Escape($env:ProgramFiles)+'\\WindowsApps\\OpenAI\.Codex_[^\\]+\\'))
     if ($name -match '^(node|extension-host)\.exe$') {
         if (Test-CodexPath ([string]$Process.CommandLine)) { return 'Helper' }
-        if (-not $Process.CommandLine -and $owned) { return 'Unknown' }
+        if (-not $Process.CommandLine -and $owned) { return 'Helper' }
         return ''
     }
     if ($name -match '^(ChatGPT|codex|codex-.+|node_repl)\.exe$') {
-        if (-not $exe) { return 'Unknown' }
+        if (-not $exe) { return '' }
         if ($owned) {
             if ($name -ieq 'ChatGPT.exe') { return 'Desktop' }
             if ($name -ieq 'codex.exe') { return 'Backend' }

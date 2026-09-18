@@ -1,0 +1,3 @@
+CodexSwitcher v2.0.0
+See _internal/docs/README.md for usage and _internal/docs/VALIDATION.md for actual test status.
+Run daily CMD entries from Explorer after saving work. Switching closes Codex and all Edge windows.

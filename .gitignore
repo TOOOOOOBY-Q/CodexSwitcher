@@ -1,23 +1,10 @@
-# Local environment data and credentials do not belong in this repository.
-.codex*/
-auth.json
-config.toml
-.env
-.env.*
-*.pem
-*.key
-
-# Historical workstation material and generated results.
-_internal/archive/
-_internal/backups/
+_internal/bin/*.exe
+_internal/tests/*.exe
 _internal/logs/
-_internal/tests/*results.json
-*.bak
-*.before-*
+_internal/backups/
+_internal/archive/
 *.log
-*.lock
-*.running
+*.pid.json
+*.bak-*
+.env*
 dist/
-*.zip
-
-!downloads/*.zip

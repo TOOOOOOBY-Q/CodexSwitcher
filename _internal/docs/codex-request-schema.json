@@ -1,0 +1,77 @@
+{
+  "path": "/v1/responses",
+  "model": "deepseek-flash",
+  "stream": true,
+  "fields": [
+    "model",
+    "instructions",
+    "input",
+    "tools",
+    "tool_choice",
+    "parallel_tool_calls",
+    "reasoning",
+    "store",
+    "stream",
+    "include",
+    "prompt_cache_key",
+    "client_metadata"
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "keys": [
+        "type",
+        "name",
+        "description",
+        "strict",
+        "parameters"
+      ]
+    },
+    {
+      "type": "function",
+      "keys": [
+        "type",
+        "name",
+        "description",
+        "strict",
+        "parameters"
+      ]
+    },
+    {
+      "type": "function",
+      "keys": [
+        "type",
+        "name",
+        "description",
+        "strict",
+        "parameters"
+      ]
+    },
+    {
+      "type": "function",
+      "keys": [
+        "type",
+        "name",
+        "description",
+        "strict",
+        "parameters"
+      ]
+    },
+    {
+      "type": "namespace",
+      "keys": [
+        "type",
+        "name",
+        "description",
+        "tools"
+      ]
+    },
+    {
+      "type": "web_search",
+      "keys": [
+        "type",
+        "external_web_access"
+      ]
+    }
+  ]
+}
